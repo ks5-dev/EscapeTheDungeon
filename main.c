@@ -14,7 +14,7 @@
 
 typedef enum GameScreen { GAMEPLAY, DEATH_SCREEN } GameScreen;
 
-GameScreen screen = DEATH_SCREEN;
+GameScreen screen = GAMEPLAY;
 
 int MatrixMap[18][24] = {
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1, 1},
@@ -57,6 +57,7 @@ typedef struct Enemy
     bool trigger;
     Vector2 position;
     Rectangle area;
+    Rectangle rect;
 } Enemy;
 
 
@@ -100,6 +101,12 @@ int main(){
         PLAYER_AREA_WIDTH,
         PLAYER_AREA_HEIGHT
     };
+    player.rect = (Rectangle){
+        player.position.x,
+        player.position.y,
+        14,
+        24
+    };
 
     Item chest1 = { 0 };
     chest1.itemSprite = LoadTexture("asset/chestYellow.png");
@@ -119,14 +126,26 @@ int main(){
             300 - CYCLOPS_AREA +60 + 32,
             CYCLOPS_AREA,
             CYCLOPS_AREA
+        },
+        (Rectangle){
+            300,
+            300,
+            32,
+            32
         } },
         {cyclop, 20.0, false,
         (Vector2){700,700}, 
         (Rectangle){
-            300 - CYCLOPS_AREA + 60 + 32,
-            300 - CYCLOPS_AREA + 60 + 32,
+            700 - CYCLOPS_AREA + 60 + 32,
+            700 - CYCLOPS_AREA + 60 + 32,
             CYCLOPS_AREA,
             CYCLOPS_AREA
+        },
+        (Rectangle){
+            700,
+            700,
+            32,
+            32
         } },
     };
 
@@ -142,13 +161,13 @@ int main(){
             updatePlayer(&player, deltaTime);
             updateCyclop(cyclops, &player, deltaTime, spawningPoint);
             UpdateMusicStream(dungeon_sound);
-            /*
+            
             for(int i = 0; i < 2; i++){
-                if (CheckC(cyclops[i].enemySprite.rect, player.playerSprite.rect)){
+                if (CheckCollisionRecs(cyclops[i].rect, player.rect)){
                     screen = DEATH_SCREEN;
                 }
             }
-            */
+            
 
             break;
         
@@ -177,7 +196,10 @@ int main(){
                     DrawRectangleLinesEx(cyclops[i].area, 5.0, RED);
                 }
                 DrawTexture(player.playerSprite, player.position.x, player.position.y, WHITE);
+                DrawRectangleLinesEx(player.rect, 5.0, BLUE);
                 DrawRectangleLinesEx(player.area, 5.0, RED);
+                DrawTexture(chest1.itemSprite, chest1.position.x, chest1.position.y, WHITE);
+
                 DrawTexture(chest1.itemSprite, chest1.position.x, chest1.position.y, WHITE);
                 break;
             case DEATH_SCREEN:
@@ -246,6 +268,12 @@ void updatePlayer(Player *player, float delta){
         PLAYER_AREA_WIDTH,
         PLAYER_AREA_HEIGHT
     };
+    player->rect = (Rectangle){
+        player->position.x,
+        player->position.y,
+        14,
+        24
+    };
 }
 
 void updateCyclop(Enemy *cyclops, Player *player, float delta, Vector2 *spawningPoints ){
@@ -261,6 +289,12 @@ void updateCyclop(Enemy *cyclops, Player *player, float delta, Vector2 *spawning
             cyclops[i].position.y - CYCLOPS_AREA + 60 + 32,
             CYCLOPS_AREA,
             CYCLOPS_AREA
+        };
+        cyclops[i].rect = (Rectangle){
+            cyclops[i].position.x,
+            cyclops[i].position.y,
+            32,
+            32
         };
     }
 }
