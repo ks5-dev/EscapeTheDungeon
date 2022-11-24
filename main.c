@@ -22,9 +22,9 @@ typedef enum GameScreen { GAMEPLAY, DEATH_SCREEN } GameScreen;
 GameScreen screen = GAMEPLAY;
 
 int MatrixMap[18][24] = {
-    {1,  3,  3,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1, 1},
-    {1,  3,  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1,  1},
-    {1,  3,  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  3,  1,  1,  1,  1,  1},
+    {1,  3,  3,  3,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1, 1},
+    {1,  3,  3,  3,  1,  1,  1,  3,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1,  1},
+    {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  3,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
@@ -71,6 +71,7 @@ typedef struct Item
     Texture2D itemSprite;
     Vector2 position;
     enum {gunpowder_chest, key_chest} itemType;
+    bool beenOpened;
 } Item;
 
 typedef struct Inventory
@@ -120,6 +121,7 @@ int main(){
     chest1.itemSprite = LoadTexture("asset/chestYellow.png");
     chest1.position = (Vector2){ 400, 400};
     chest1.itemType = key_chest;
+    chest1.beenOpened = false;
 
     Vector2 spawningPoint[] = {
         {300, 300},
@@ -209,7 +211,7 @@ int main(){
                             DrawTexture(dungeon_tile, 47*j, 47*i, WHITE);
                         }
                         else if (MatrixMap[i][j] == 2){
-                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, BLUE );
+                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, RAYWHITE );
                         }
                         else if (MatrixMap[i][j] == 3){
                             DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, DARKER );
@@ -301,7 +303,7 @@ void updatePlayer(Player *player, float delta, int MatrixMap[18][24]){
     if (player->noise == low){
         player->area = (Rectangle){
             player->position.x - PLAYER_AREA_WIDTH + 50 + 14,
-            player->position.y - PLAYER_AREA_HEIGHT +50 + 24,
+            player->position.y - PLAYER_AREA_HEIGHT + 50 + 24,
             PLAYER_AREA_WIDTH,
             PLAYER_AREA_HEIGHT
         };
@@ -325,26 +327,38 @@ void updatePlayer(Player *player, float delta, int MatrixMap[18][24]){
     float convertedCoordinateY = player->position.y / 47.0;
     int j = (int)convertedCoordinateX;
     int i = (int)convertedCoordinateY;
+
     if (MatrixMap[i][j] == 3){
-        if(player->position.x >= i * 47.0){
-            player->position.x -= 5;
+
+        if(player->position.x >= j * 47.0 && player->position.x <= (j+1) * 47.0 ){
+            if ( IsKeyDown(KEY_A) || IsKeyPressed(KEY_A) ){
+                player->position.x += 1;
+            }
+            if ( IsKeyDown(KEY_D) || IsKeyPressed(KEY_D) ){
+                player->position.x -= 1;
+            }
         }
-        if(player->position.x >= i * 47.0){
-            player->position.x -= 5;
+        if(player->position.y + 14 >= i * 47.0 && player->position.y <= (i+1) * 47.0){
+            if ( IsKeyDown(KEY_W) || IsKeyPressed(KEY_W) ){
+                player->position.y += 1;
+            }
+            if ( IsKeyDown(KEY_S) || IsKeyPressed(KEY_S) ){
+                player->position.y -= 1;
+            }
         }
     }
-        player->speed = 50.0;
+
             
     for(int x = -2; x < 3; x++){
         for(int y = -2; y < 3; y++){
-            if(i + x >= 0 && j + y >= 0){
+            if(i + x >= 0 && j + y >= 0 && MatrixMap[i+x][j+y] != 3){
                 if( (x == -2 || y == -2 || x == 2 || y == 2) && ( MatrixMap[i+x][j+y] != 2 && MatrixMap[i+x][j+y] != 3) ){
                     MatrixMap[i+x][j+y] = 1;
                 }
                 else if( (x == -1 || y == -1 || x == 1|| y == 1) && (MatrixMap[i+x][j+y] != 2 && MatrixMap[i+x][j+y] != 3) ){
                     MatrixMap[i+x][j+y] = 0;
                 }
-                else if(x == 0 & y == 0){
+                else if(x == 0 & y == 0 && MatrixMap[i][j] != 3){
                     MatrixMap[i][j] = 0;
                 }
             }
