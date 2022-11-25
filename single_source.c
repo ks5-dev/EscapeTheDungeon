@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "stdio.h"
+#include "string.h"
 #include "player.h"
 
 #define SCREEN_WIDTH 47*24
@@ -23,12 +24,12 @@
 #define mapRow 15
 #define mapColumn 24
 
-typedef enum GameScreen { GAMEPLAY, DEATH_SCREEN, WIN_SCREEN } GameScreen;
+typedef enum GameScreen { GAMEPLAY, DEATH_SCREEN } GameScreen;
 
 GameScreen screen = GAMEPLAY;
 
 int MatrixMap[15][24] = {
-    {1,  3,  3,  3,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1, 2},
+    {1,  3,  3,  3,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1, 1},
     {1,  3,  3,  3,  1,  1,  1,  3,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  3,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
@@ -54,48 +55,8 @@ int MatrixMap[15][24] = {
     {2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  1,  1,  1,  3,  1,  1,  3,  3,  1,  1,  1,  3},
 */
 
-const char *dialouge[5];
-    
-
-typedef struct Player
-{
-    Texture2D playerSprite;
-    Vector2 position;
-    float speed;
-    float sprintSpeed;
-    enum {low, high} noise;
-    Rectangle area;
-    Rectangle rect;
-    bool hasKey;
-} Player;
-
-typedef struct Enemy
-{
-    Texture2D enemySprite;
-    float speed;
-    bool trigger;
-    Vector2 position;
-    Rectangle area;
-    Rectangle rect;
-} Enemy;
 
 
-typedef struct Item
-{
-    Texture2D itemSprite;
-    enum {gunpowder_chest, key} itemType;
-    bool beenOpened;
-    Rectangle rect;
-} Item;
-
-typedef struct Inventory
-{
-    Texture2D inventorySprite;
-    bool occupied;
-} Inventory;
-
-
-void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened, float delta, int MatrixMap[18][24]);
 void updateCyclop(Enemy *cyclops, Player *player, float delta, Vector2 spawningPointEnemy[]);
 
 int main(){
@@ -110,14 +71,13 @@ int main(){
     Texture2D empty_inventory = LoadTexture("asset/inventory.png");
     Texture2D chest = LoadTexture("asset/chest.png");
     Texture2D openedChest = LoadTexture("asset/chest_opened.png");
-    Texture2D gate = LoadTexture("asset/gate.png");
     
     Texture ghost = LoadTexture("asset/ghost.png");
     Texture2D skull = LoadTexture("asset/skull.png");
 
     Music dungeon_sound = LoadMusicStream("asset/dungeon_ambient_1.ogg");
+    Music chasing_scene = LoadMusicStream("goblin_breathing.wav");
 
-    
     Vector2 spawningPointEnemy[] = {
         {300.0, 300.0},
         {800.0, 650.0}
@@ -239,7 +199,7 @@ int main(){
                             DrawTexture(dungeon_tile, 47*j, 47*i, WHITE);
                         }
                         else if (MatrixMap[i][j] == 2){
-                            DrawTexture(gate, 47*j, 47*i, WHITE);
+                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, RAYWHITE );
                         }
                         else if (MatrixMap[i][j] == 3){
                             DrawTexture(wall, 47*j, 47*i, WHITE);
@@ -265,7 +225,7 @@ int main(){
                 for(int i = 0 ; i < mapRow; i++){
                     for(int j = 0; j < mapColumn; j++){
                         if (MatrixMap[i][j] == 1 ){
-                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, DARK );
+                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, BLACK );
                     }
                 }
             }
@@ -301,8 +261,6 @@ int main(){
 
     return 0;
 }
-
-
 
 void updateCyclop(Enemy *cyclops, Player *player, float delta, Vector2 spawningPointEnemy[] ){
     for(int i = 0; i < 2; i++){
