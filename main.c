@@ -32,9 +32,9 @@ int MatrixMap[15][24] = {
     {1,  2,  2,  2,  1,  1,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  1,  1,  1,  1,  1,  2},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
-    {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
-    {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
-    {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
+    {1,  1,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
+    {1,  1,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
+    {1,  1,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
@@ -67,6 +67,9 @@ typedef struct Player
     Rectangle area;
     Rectangle rect;
     bool hasKey;
+    bool hasTorch;
+    bool hasBoot;
+    bool hasPoison;
 } Player;
 
 typedef struct Enemy
@@ -83,7 +86,7 @@ typedef struct Enemy
 typedef struct Item
 {
     Texture2D itemSprite;
-    enum {gunpowder_chest, key} itemType;
+    enum {key, torch, magic_boot, poison} itemType;
     bool beenOpened;
     Rectangle rect;
 } Item;
@@ -129,7 +132,7 @@ int main(){
     
     Vector2 spawningPointEnemy[] = {
         {300.0, 300.0},
-        {800.0, 650.0}
+        {800.0, 600.0}
     };
 
     
@@ -138,7 +141,7 @@ int main(){
     Player player = {0};
     player.playerSprite = princess;
     player.position = (Vector2) { 100, 100};
-    player.speed = 25.0;
+    player.speed = 100.0;
     player.sprintSpeed = 50.0;
     player.noise = 0;
     player.area = (Rectangle){
@@ -154,6 +157,9 @@ int main(){
         24
     };
     player.hasKey = false;
+    player.hasTorch = false;
+    player.hasBoot = false;
+    player.hasPoison = false;
 
     Inventory inventory[] = {
         {empty_inventory, false},
@@ -163,8 +169,14 @@ int main(){
     };
 
     Item item[] = {
-        {chest, key, false, 
+        {chest, torch, false, 
         (Rectangle){400.0, 400.0, 24, 21} },
+        {chest, poison, false, 
+        (Rectangle){0.0, 500.0, 24, 21} },
+        {chest, magic_boot, false, 
+        (Rectangle){1000.0, 100.0, 24, 21} },
+        {chest, key, false, 
+        (Rectangle){1100.0, 500.0, 24, 21} },
     };
 
     Enemy cyclops[] = {
@@ -183,16 +195,16 @@ int main(){
             32
         } },
         {cyclop, 20.0, false,
-        (Vector2){800,650}, 
+        (Vector2){800,600}, 
         (Rectangle){
-            700 - CYCLOPS_AREA + 60 + 32,
-            700 - CYCLOPS_AREA + 60 + 32,
+            800 - CYCLOPS_AREA + 60 + 32,
+            600 - CYCLOPS_AREA + 60 + 32,
             CYCLOPS_AREA,
             CYCLOPS_AREA
         },
         (Rectangle){
-            700,
-            700,
+            800,
+            600,
             32,
             32
         } },
@@ -211,6 +223,18 @@ int main(){
             UpdateMusicStream(dungeon_sound);
             
             for(int i = 0; i < 2; i++){
+                if(player.hasPoison){
+                    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+                        Vector2 mouse_pos = GetMousePosition();
+                        if (CheckCollisionPointRec(mouse_pos, cyclops[i].rect)){
+                            cyclops[i].speed = 0.0;
+                        }
+                    }
+                    else if(IsMouseButtonUp(MOUSE_BUTTON_LEFT)){
+                        cyclops[i].speed = 30.0;
+                    }                                
+                }
+
                 if (CheckCollisionRecs(cyclops[i].rect, player.rect)){
                     screen = DEATH_SCREEN;
                 }
@@ -258,16 +282,16 @@ int main(){
 
                 for(int i = 0; i < 2; i++){
                     DrawTexture(cyclops[i].enemySprite, cyclops[i].position.x, cyclops[i].position.y, WHITE);
-                    // DrawRectangleLinesEx(cyclops[i].area, 5.0, RED);
+                    DrawRectangleLinesEx(cyclops[i].area, 5.0, RED);
                     // Decomment the line above to see the range of the Cyclops
                 }
                 
                 DrawTexture(player.playerSprite, player.position.x, player.position.y, WHITE);
-                // DrawRectangleLinesEx(player.area, 5.0, RED);
+                DrawRectangleLinesEx(player.area, 5.0, RED);
                 // Decomment the line above to see the range of the PLayer
                 
                 //Chests
-                for(int i = 0; i < 1; i++){
+                for(int i = 0; i < 4; i++){
                     DrawTexture(item[i].itemSprite, item[i].rect.x, item[i].rect.y, WHITE);
                 }
 
