@@ -59,7 +59,7 @@ typedef struct Inventory
     bool occupied;
 } Inventory;
 
-void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened ,float delta, int MatrixMap[15][24]){
+void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened, float delta, int MatrixMap[15][24]){
     if (IsKeyDown(KEY_A)){
         if(IsKeyDown(KEY_LEFT_SHIFT)){
             player->position.x -= player->sprintSpeed * delta;
@@ -147,7 +147,7 @@ void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D ch
             
     for(int x = -2; x < 3; x++){
         for(int y = -2; y < 3; y++){
-            if(i + x >= 0 && j + y >= 0 && MatrixMap[i+x][j+y] != 3){
+            if(i + x >= 0 && j + y >= 0 && ( MatrixMap[i+x][j+y] != 3 && MatrixMap[i+x][j+y] != 2) ){
                 if( (x == -2 || y == -2 || x == 2 || y == 2) && ( MatrixMap[i+x][j+y] != 2 && MatrixMap[i+x][j+y] != 3) ){
                     MatrixMap[i+x][j+y] = 1;
                 }
@@ -157,6 +157,15 @@ void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D ch
                 else if(x == 0 & y == 0 && MatrixMap[i][j] != 3){
                     MatrixMap[i][j] = 0;
                 }
+            }
+            else if(i + x >= 0 && j + y >= 0 && ( MatrixMap[i+x][j+y] == 3 || MatrixMap[i+x][j+y] == 2) ){
+                if( (x == -2 || y == -2 || x == 2 || y == 2) && MatrixMap[i+x][j+y] == 3){
+                    MatrixMap[i+x][j+y] = 2;
+                }
+                else if( (x == -1 || y == -1 || x == 1|| y == 1) && !(x == -2 || y == -2 || x == 2 || y == 2) && MatrixMap[i+x][j+y] == 2 ){
+                    MatrixMap[i+x][j+y] = 3;
+                }
+
             }
         }
     }
@@ -174,7 +183,7 @@ void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D ch
 
     
     // Player Boundaries
-    if(player->position.y >= SCREEN_HEIGHT - (47.0 * 3.0) ){
+    if(player->position.y >= SCREEN_HEIGHT - (47.0 * 3.5) ){
         player->position.y -= 1;
     }
 

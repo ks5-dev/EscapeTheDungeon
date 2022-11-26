@@ -28,9 +28,9 @@ typedef enum GameScreen { GAMEPLAY, DEATH_SCREEN, WIN_SCREEN } GameScreen;
 GameScreen screen = GAMEPLAY;
 
 int MatrixMap[15][24] = {
-    {1,  3,  3,  3,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1, 2},
-    {1,  3,  3,  3,  1,  1,  1,  3,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  1,  1,  1,  1},
-    {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,  3,  3,  1,  1,  1,  1,  1},
+    {1,  2,  2,  2,  1,  1,  1,  1,  1,  1,  1,  2,  2,  1,  1,  1,  2,  2,  1,  1,  1,  1,  1, 2},
+    {1,  2,  2,  2,  1,  1,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  1,  1,  1,  1,  1,  2},
+    {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
@@ -43,7 +43,7 @@ int MatrixMap[15][24] = {
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
-    {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
+    {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  1,  1,  1,  1,  1},
 
     
 };
@@ -54,7 +54,7 @@ int MatrixMap[15][24] = {
     {2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  1,  1,  1,  3,  1,  1,  3,  3,  1,  1,  1,  3},
 */
 
-const char *dialouge[5];
+const char *dialouge[10];
     
 
 typedef struct Player
@@ -95,13 +95,22 @@ typedef struct Inventory
 } Inventory;
 
 
-void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened, float delta, int MatrixMap[18][24]);
+void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened,float delta, int MatrixMap[18][24]);
 void updateCyclop(Enemy *cyclops, Player *player, float delta, Vector2 spawningPointEnemy[]);
 
 int main(){
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Save The Prince");
     InitAudioDevice();
+
+    dialouge[0] = "You are finally awake!";
+    dialouge[1] = "Confusing? Let me tell you what happened.";
+    dialouge[2] = "You are captured by these one-eye goblin \n when they suddenly attack the kingdom";
+    dialouge[3] = "Many were left dead, including me, I was \n killed and turned into a vengeful spirit";
+    dialouge[4] = "I want to help you to get out, so \n you can seal this dungeon forever...";
+    dialouge[5] = "They hid the gate to get out, \nfind it along with the key to open";
+    dialouge[6] = "There are hidden chests that may grant you \n items as well";
+    dialouge[7] = "Now find your way out, I hope you shall \n be the last one I ever helped";
     
     Texture2D dungeon_tile = LoadTexture("asset/dungeon_tiles.png");
     Texture2D princess = LoadTexture("asset/princess.png");
@@ -188,7 +197,7 @@ int main(){
             32
         } },
     };
-
+    
 
     while (!WindowShouldClose())
     {
@@ -239,7 +248,7 @@ int main(){
                             DrawTexture(dungeon_tile, 47*j, 47*i, WHITE);
                         }
                         else if (MatrixMap[i][j] == 2){
-                            DrawTexture(gate, 47*j, 47*i, WHITE);
+                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, BLACK );
                         }
                         else if (MatrixMap[i][j] == 3){
                             DrawTexture(wall, 47*j, 47*i, WHITE);
@@ -278,6 +287,7 @@ int main(){
                 // Dialouge box
                 DrawRectangleRoundedLines( (Rectangle){500, 715, 500, 120}, 0.5, 3, 5.0, BLACK);
                 DrawRectangleRounded( (Rectangle){500, 715, 500, 120}, 0.5, 3 , WHITE);
+                DrawText(dialouge[7], 515, 730, 20, BLACK);
                 break;
             case DEATH_SCREEN:
                 ClearBackground(BLACK);
