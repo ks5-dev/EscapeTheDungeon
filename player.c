@@ -66,18 +66,18 @@ typedef struct Inventory
 void lightning(int MatrixMap[15][24], int i, int j){
     for(int x = -2; x < 3; x++){
         for(int y = -2; y < 3; y++){
-            if(i + x >= 0 && j + y >= 0 && ( MatrixMap[i+x][j+y] != 3 && MatrixMap[i+x][j+y] != 2) ){
-                if( (x == -2 || y == -2 || x == 2 || y == 2) && ( MatrixMap[i+x][j+y] != 2 && MatrixMap[i+x][j+y] != 3) ){
+            if(i + x >= 0 && j + y >= 0 && ( MatrixMap[i+x][j+y] ==0 || MatrixMap[i+x][j+y] == 1) ){
+                if( abs(x) == 2 || abs(y) == 2 ){
                     MatrixMap[i+x][j+y] = 1;
                 }
-                else if( (x == -1 || y == -1 || x == 1|| y == 1) && (MatrixMap[i+x][j+y] != 2 && MatrixMap[i+x][j+y] != 3) ){
+                else if( abs(x) == 1 || abs(y) == 1 ){
                     MatrixMap[i+x][j+y] = 0;
                 }
                 else if(x == 0 & y == 0 && MatrixMap[i][j] != 3){
                     MatrixMap[i][j] = 0;
                 }
             }
-            else if(i + x >= 0 && j + y >= 0 && ( MatrixMap[i+x][j+y] == 3 || MatrixMap[i+x][j+y] == 2) ){
+            else if(i + x >= 0 && j + y >= 0 ){
                 if( (x == -2 || y == -2 || x == 2 || y == 2) && MatrixMap[i+x][j+y] == 3){
                     MatrixMap[i+x][j+y] = 2;
                 }
@@ -92,11 +92,11 @@ void lightning(int MatrixMap[15][24], int i, int j){
 void lightningTorch(int MatrixMap[15][24], int i, int j){
     for(int x = -3; x < 4; x++){
         for(int y = -3; y < 4; y++){
-            if(i + x >= 0 && j + y >= 0 && ( MatrixMap[i+x][j+y] != 3 && MatrixMap[i+x][j+y] != 2) ){
-                if(  (abs(x) == 3 || abs(y) == 3) && ( MatrixMap[i+x][j+y] != 2 && MatrixMap[i+x][j+y] != 3) ){
+            if(i + x >= 0 && j + y >= 0 && ( MatrixMap[i+x][j+y] ==0 || MatrixMap[i+x][j+y] == 1)  ){
+                if(abs(x) == 3 || abs(y) == 3){
                     MatrixMap[i+x][j+y] = 1;
                 }
-                else if ( (abs(x) == 2 || abs(x) == 1 || abs(y) == 1 || abs(y)==2 ) && (MatrixMap[i+x][j+y] != 2 && MatrixMap[i+x][j+y] != 3) ){
+                else if ( abs(x) == 2 || abs(x) == 1 || abs(y) == 1 || abs(y)==2 ){
                     MatrixMap[i+x][j+y] = 0;
                 }
                 else if(x == 0 & y == 0 && MatrixMap[i][j] != 3){

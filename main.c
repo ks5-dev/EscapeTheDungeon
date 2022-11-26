@@ -28,7 +28,7 @@ typedef enum GameScreen { GAMEPLAY, DEATH_SCREEN, WIN_SCREEN } GameScreen;
 GameScreen screen = GAMEPLAY;
 
 int MatrixMap[15][24] = {
-    {1,  2,  2,  2,  1,  1,  1,  1,  1,  1,  1,  2,  2,  1,  1,  1,  2,  2,  1,  1,  1,  1,  1, 2},
+    {1,  2,  2,  2,  1,  1,  1,  1,  1,  1,  1,  2,  2,  1,  1,  1,  2,  2,  1,  1,  1,  1,  1, 4},
     {1,  2,  2,  2,  1,  1,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  1,  1,  1,  1,  1,  2},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  1,  1,  1,  1,  1},
     {1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
@@ -238,6 +238,9 @@ int main(){
                 if (CheckCollisionRecs(cyclops[i].rect, player.rect)){
                     screen = DEATH_SCREEN;
                 }
+                if (CheckCollisionRecs(player.rect, (Rectangle){47.0*23, 0, 47.0, 47.0} ) && player.hasKey){
+                    screen = WIN_SCREEN;
+                }
             }
 
             break;
@@ -257,6 +260,17 @@ int main(){
             }
             break;
         default:
+            if (IsKeyPressed(KEY_ENTER)){
+                screen = GAMEPLAY;
+                for(int i = 0 ; i < mapRow; i++){
+                    for(int j = 0; j < mapColumn; j++){
+                        if (MatrixMap[i][j] != 2 && MatrixMap[i][j] != 3){
+                            MatrixMap[i][j] = 1;
+                        }
+                    }
+                }
+                player.position = (Vector2) { 100, 100};
+            }
             break;
         }
 
@@ -271,11 +285,17 @@ int main(){
                         if (MatrixMap[i][j] == 0 ){
                             DrawTexture(dungeon_tile, 47*j, 47*i, WHITE);
                         }
+                        if (MatrixMap[i][j] == 1 ){
+                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, DARK );
+                    }
                         else if (MatrixMap[i][j] == 2){
                             DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, BLACK );
                         }
                         else if (MatrixMap[i][j] == 3){
                             DrawTexture(wall, 47*j, 47*i, WHITE);
+                        }
+                        else if (MatrixMap[i][j] == 4){
+                            DrawTexture(gate, 47*j, 47*i, WHITE);
                         }
                     }
                 }
@@ -295,14 +315,6 @@ int main(){
                     DrawTexture(item[i].itemSprite, item[i].rect.x, item[i].rect.y, WHITE);
                 }
 
-                for(int i = 0 ; i < mapRow; i++){
-                    for(int j = 0; j < mapColumn; j++){
-                        if (MatrixMap[i][j] == 1 ){
-                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, DARK );
-                    }
-                }
-            }
-
             // Dialogue & inventory screen
                 for(int i = 0; i < 4; i++){
                     DrawTexture(inventory[i].inventorySprite, 64 * (i+1), 753, WHITE);
@@ -320,6 +332,9 @@ int main(){
                 DrawTexture(skull, 485, 300, WHITE);
                 break;
             default:
+                ClearBackground(WHITE);
+                DrawText("YOU WIN", 475, 500, 30 ,BLUE);
+                DrawText("Press [Enter] for another retry", 300, 550, 30 ,BLUE);
                 break;
             }
                 
