@@ -116,7 +116,7 @@ void lightningTorch(int MatrixMap[15][24], int i, int j){
     }
 }
 
-void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened, float delta, int MatrixMap[15][24]){
+void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened, int *curDialouge, float delta, int MatrixMap[15][24]){
     if (IsKeyDown(KEY_A)){
         if(IsKeyDown(KEY_LEFT_SHIFT) && !player->hasBoot ){
             player->position.x -= player->sprintSpeed * delta;
@@ -207,7 +207,7 @@ void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D ch
         lightning(MatrixMap, i, j);
     }
     //Chest & items
-    for(int i = 0; i < NUMCHEST; i++){
+    for(int i = 0; i < 4; i++){
         if (CheckCollisionRecs(player->rect, item[i].rect)){
             item[i].itemSprite = chestOpened;
             switch (item[i].itemType)
@@ -215,18 +215,22 @@ void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D ch
             case key:
                 player -> hasKey = true;
                 inventory[i].inventorySprite = LoadTexture("asset/inv_key.png");
+                *curDialouge = 9;
                 break;
             case torch:
                 player -> hasTorch = true;
                 inventory[i].inventorySprite = LoadTexture("asset/inv_torch.png");
+                *curDialouge = 10;
                 break;
             case magic_boot:
                 player -> hasBoot = true;
                 inventory[i].inventorySprite = LoadTexture("asset/inv_magic_boot.png");
+                *curDialouge = 11;
                 break;
             case poison:
                 player -> hasPoison = true;
                 inventory[i].inventorySprite = LoadTexture("asset/inv_potion.png");
+                *curDialouge = 12;
                 break;
             default:
                 break;
@@ -234,7 +238,6 @@ void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D ch
         }
     }
 
-    
     // Player Boundaries
     if(player->position.y >= SCREEN_HEIGHT - (47.0 * 3.5) ){
         player->position.y -= 1;

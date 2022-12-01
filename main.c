@@ -12,7 +12,8 @@
 #define HIGH_NOISE_PLAYER_AREA_HEIGHT 184 // 24 + 80 * 2 
 #define CYCLOPS_AREA 152 // 32 + 60 * 2
 
-#define NUMCHEST 1
+#define NUMCHEST 4
+#define NUMDIALOUGE 8
 
 #define BLUE_GRAY (Color){24, 35, 35, 1}
 #define BLUE_GRAY_2 (Color){48, 60, 60, 1}
@@ -54,8 +55,7 @@ int MatrixMap[15][24] = {
     {2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  1,  1,  1,  3,  1,  1,  3,  3,  1,  1,  1,  3},
 */
 
-const char *dialouge[10];
-    
+const char *dialouge[15];   
 
 typedef struct Player
 {
@@ -97,13 +97,13 @@ typedef struct Inventory
     bool occupied;
 } Inventory;
 
+void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened, int *curDialouge,float delta, int MatrixMap[18][24]);
 
-void updatePlayer(Player *player, Inventory *inventory, Item *item, Texture2D chestOpened,float delta, int MatrixMap[18][24]);
 void updateCyclop(Enemy *cyclops, Player *player, float delta, Vector2 spawningPointEnemy[]);
 
 int main(){
 
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Save The Prince");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Escape The Dungeon");
     InitAudioDevice();
 
     dialouge[0] = "You are finally awake!";
@@ -113,7 +113,13 @@ int main(){
     dialouge[4] = "I want to help you to get out, so \n you can seal this dungeon forever...";
     dialouge[5] = "They hid the gate to get out, \nfind it along with the key to open";
     dialouge[6] = "There are hidden chests that may grant you \n items as well";
-    dialouge[7] = "Now find your way out, I hope you shall \n be the last one I ever helped";
+    dialouge[7] = "Be careful that they can hear you well, \nespecially when running ";
+    dialouge[8] = "Now find your way out, I hope you shall \n be the last one I attempted to help";
+    dialouge[9] = "This is the key to exit the dungeon";
+    dialouge[10] = "Now you shall be able to see further into \nthe darkness";
+    dialouge[11] = "Sprint freely! With the magic boot on you can \nrun as quietfully as walking";
+    dialouge[12] = "Keep throwing this poison potion at the enemy \nto stop its movement. \"Hold the mouse\" is the \ntext written on it";
+
     
     Texture2D dungeon_tile = LoadTexture("asset/dungeon_tiles.png");
     Texture2D princess = LoadTexture("asset/princess.png");
@@ -129,7 +135,7 @@ int main(){
 
     Music dungeon_sound = LoadMusicStream("asset/dungeon_ambient_1.ogg");
 
-    
+    int curDialouge = 0;
     Vector2 spawningPointEnemy[] = {
         {300.0, 300.0},
         {800.0, 600.0}
@@ -218,7 +224,7 @@ int main(){
         {
         case GAMEPLAY:
             
-            updatePlayer(&player, inventory, item, openedChest, deltaTime, MatrixMap);
+            updatePlayer(&player, inventory, item, openedChest, &curDialouge,deltaTime, MatrixMap);
             updateCyclop(cyclops, &player, deltaTime, spawningPointEnemy);
             UpdateMusicStream(dungeon_sound);
             
@@ -243,6 +249,10 @@ int main(){
                 }
             }
 
+            if (IsKeyPressed(KEY_ENTER) && curDialouge < NUMDIALOUGE){
+                curDialouge++;
+            }
+
             break;
         
 
@@ -256,6 +266,18 @@ int main(){
                         }
                     }
                 }
+                for(int i = 0; i < NUMCHEST; i++){
+                    item[i].itemSprite = chest;
+                    inventory[i].inventorySprite = empty_inventory;
+                }
+                for(int i =0; i < 2; i++){
+                    cyclops[i].position = spawningPointEnemy[i];
+                    cyclops[i].rect = (Rectangle){cyclops[i].position.x, cyclops[i].position.y, 32, 32};
+                }
+                player.hasTorch = false;
+                player.hasKey = false;
+                player.hasTorch = false;
+                player.hasPoison = false;
                 player.position = (Vector2) { 100, 100};
             }
             break;
@@ -323,7 +345,7 @@ int main(){
                 // Dialouge box
                 DrawRectangleRoundedLines( (Rectangle){500, 715, 500, 120}, 0.5, 3, 5.0, BLACK);
                 DrawRectangleRounded( (Rectangle){500, 715, 500, 120}, 0.5, 3 , WHITE);
-                DrawText(dialouge[7], 515, 730, 20, BLACK);
+                DrawText(dialouge[curDialouge], 515, 730, 20, BLACK);
                 break;
             case DEATH_SCREEN:
                 ClearBackground(BLACK);
