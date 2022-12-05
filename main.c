@@ -308,7 +308,7 @@ int main(){
                             DrawTexture(dungeon_tile, 47*j, 47*i, WHITE);
                         }
                         if (MatrixMap[i][j] == 1 ){
-                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, DARK );
+                            DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, BLACK );
                     }
                         else if (MatrixMap[i][j] == 2){
                             DrawRectangleV( (Vector2){47 * j, 47 * i}, (Vector2){47.0, 47.0}, BLACK );
