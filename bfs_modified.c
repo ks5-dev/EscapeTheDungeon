@@ -104,6 +104,7 @@ void bfs(struct Graph* graph, Pair startVertex, Pair desVertex) {
       }
       temp = temp->next;
     }
+    // search
     if (pairEqual(currentVertex, desVertex) ){
         printf("Found. The path is as follow: \n");
         
