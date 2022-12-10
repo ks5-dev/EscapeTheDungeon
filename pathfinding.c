@@ -107,12 +107,11 @@ void bfs(struct Graph* graph, Pair startVertex, Pair desVertex) {
     // search
     if (pairEqual(currentVertex, desVertex) ){
         printf("Found. The path is as follow: \n");
-        /*
+        
         for(int i = 0; i < cnt; i++){
             print_pair(indexToPair(i, MATSIZE));
         }
         printf("\n");
-        */
         break;
     }
   }
@@ -148,7 +147,8 @@ void addEdge(struct Graph* graph, int src, int des, Pair srcpair, Pair despair) 
   // Add edge from s to d
   struct node* newNode = createNode(despair);
   newNode->next = graph->adjLists[src];
-  graph->adjLists[src] = newNode;                                                                                
+  graph->adjLists[src] = newNode;
+                                                                                                        
   // Add edge from d to s
   newNode = createNode(srcpair);
   newNode->next = graph->adjLists[des];
@@ -156,16 +156,14 @@ void addEdge(struct Graph* graph, int src, int des, Pair srcpair, Pair despair) 
 }
 
 int main() {
+  struct Graph* graph = createGraph(9);
   /*
-  struct Graph* graph = createGraph(4);
   addEdge(graph, 0, 1, (Pair){0,0}, (Pair){0,1});
   addEdge(graph, 0, 2, (Pair){0,0}, (Pair){1,0} );
   addEdge(graph, 1, 3, (Pair){0,1}, (Pair){1,1} );
   addEdge(graph, 2, 3, (Pair){1,0}, (Pair){1,1} );
-  */
-  
-  struct Graph* graph = createGraph(MATSIZE * MATSIZE);
-  int newmap[3][3] = {
+    */
+      int newmap[3][3] = {
     {1, 1, 2},
     {1, 2, 2},
     {1, 1, 1},
@@ -188,16 +186,14 @@ int main() {
     }
   }
   // At the end, cur is the pair of:          i: MATSIZE - 1 , j = MATSIZE- 1 
-  
+  i = MATSIZE-1;
+  j = MATSIZE -1;
   if (newmap[i][j+1] != 2){
     addEdge(graph, cur+1, cur+1+MATSIZE ,(Pair){i,j+1}, (Pair){i+1, j+1});
   }
   if (newmap[i][j+1] != 2){
     addEdge(graph, cur+MATSIZE, cur+1+MATSIZE ,(Pair){i+1,j}, (Pair){i+1, j+1});
   }
-  
-
- 
 
   bfs(graph, (Pair){0,0}, (Pair){2,2});
   printf("Done\n");

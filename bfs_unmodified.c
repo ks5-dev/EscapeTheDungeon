@@ -31,12 +31,12 @@ struct Graph {
 };
 
 // BFS algorithm
-void bfs(struct Graph* graph, int startVertex) {
+void bfs(struct Graph* graph, int startVertex, int endVertex) {
   struct queue* q = createQueue();
 
   graph->visited[startVertex] = 1;
   enqueue(q, startVertex);
-
+  int cnt = 0;
   while (!isEmpty(q)) {
     printQueue(q);
     int currentVertex = dequeue(q);
@@ -50,10 +50,23 @@ void bfs(struct Graph* graph, int startVertex) {
       if (graph->visited[adjVertex] == 0) {
         graph->visited[adjVertex] = 1;
         enqueue(q, adjVertex);
+        cnt++;
       }
       temp = temp->next;
     }
+
+    if(currentVertex == endVertex){
+      /*
+      printf("Found. Path: \n");
+      for(int i =0; i< cnt; i++){
+        printf("%d ", graph->adjLists[i]->vertex);
+      }
+      printf("\n");
+      break;
+      */
+    }
   }
+
 }
 
 // Creating a node
@@ -163,7 +176,7 @@ int main() {
   addEdge(graph, 2, 4);
   addEdge(graph, 3, 4);
 
-  bfs(graph, 0);
+  bfs(graph, 0, 4);
 
   return 0;
 }
